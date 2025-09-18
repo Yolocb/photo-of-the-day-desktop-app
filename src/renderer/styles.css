@@ -1176,3 +1176,433 @@ body {
 ::-webkit-scrollbar-corner {
   background: var(--bg-tertiary);
 }
+
+/* ===== NEUE LAYOUT-OPTIONEN ===== */
+
+/* ===== MEHRSPALTIGE GALERIE (GRID VIEW) ===== */
+
+.gallery-grid.grid-view {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  padding: 0;
+}
+
+/* Responsive Grid-Anpassungen */
+@media (min-width: 768px) {
+  .gallery-grid.grid-view {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .gallery-grid.grid-view {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (min-width: 1440px) {
+  .gallery-grid.grid-view {
+    grid-template-columns: repeat(5, 1fr);
+  }
+}
+
+/* Grid View Photo Items */
+.gallery-grid.grid-view .photo-item {
+  aspect-ratio: 1;
+  background: var(--bg-primary);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  position: relative;
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-normal);
+  cursor: pointer;
+}
+
+.gallery-grid.grid-view .photo-item:hover {
+  transform: translateY(-6px) scale(1.02);
+  box-shadow: var(--shadow-xl);
+  z-index: 10;
+}
+
+.gallery-grid.grid-view .photo-thumbnail {
+  width: 100%;
+  height: 70%;
+  object-fit: cover;
+  transition: all var(--transition-normal);
+}
+
+.gallery-grid.grid-view .photo-item:hover .photo-thumbnail {
+  transform: scale(1.1);
+  filter: brightness(1.1);
+}
+
+.gallery-grid.grid-view .photo-info {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(transparent, var(--bg-overlay));
+  color: white;
+  padding: 12px;
+  transform: translateY(100%);
+  transition: all var(--transition-normal);
+}
+
+.gallery-grid.grid-view .photo-item:hover .photo-info {
+  transform: translateY(0);
+}
+
+.gallery-grid.grid-view .photo-filename {
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 4px;
+  color: white;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+.gallery-grid.grid-view .photo-date {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.9);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+.gallery-grid.grid-view .photo-year {
+  display: none;
+}
+
+/* ===== COLLAGE-ANSICHT ===== */
+
+.gallery-grid.collage-view {
+  display: block;
+  position: relative;
+  height: calc(100vh - 200px);
+  overflow: hidden;
+  padding: 20px;
+}
+
+/* Collage Photo Items mit verschiedenen Größen und Positionen */
+.gallery-grid.collage-view .photo-item {
+  position: absolute;
+  background: white;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-lg);
+  transition: all var(--transition-slow);
+  cursor: pointer;
+  transform-origin: center;
+  border: 3px solid white;
+}
+
+/* Dark Theme Anpassungen für Collage */
+.dark-theme .gallery-grid.collage-view .photo-item {
+  background: var(--bg-secondary);
+  border-color: var(--bg-secondary);
+}
+
+/* Verschiedene Collage-Größen */
+.gallery-grid.collage-view .photo-item:nth-child(1) {
+  width: 280px;
+  height: 200px;
+  top: 5%;
+  left: 10%;
+  transform: rotate(-3deg);
+  z-index: 5;
+}
+
+.gallery-grid.collage-view .photo-item:nth-child(2) {
+  width: 240px;
+  height: 320px;
+  top: 15%;
+  right: 15%;
+  transform: rotate(2deg);
+  z-index: 4;
+}
+
+.gallery-grid.collage-view .photo-item:nth-child(3) {
+  width: 200px;
+  height: 200px;
+  bottom: 25%;
+  left: 5%;
+  transform: rotate(5deg);
+  z-index: 6;
+}
+
+.gallery-grid.collage-view .photo-item:nth-child(4) {
+  width: 260px;
+  height: 180px;
+  top: 45%;
+  left: 25%;
+  transform: rotate(-2deg);
+  z-index: 3;
+}
+
+.gallery-grid.collage-view .photo-item:nth-child(5) {
+  width: 220px;
+  height: 280px;
+  bottom: 10%;
+  right: 20%;
+  transform: rotate(4deg);
+  z-index: 4;
+}
+
+.gallery-grid.collage-view .photo-item:nth-child(6) {
+  width: 180px;
+  height: 240px;
+  top: 20%;
+  left: 45%;
+  transform: rotate(-4deg);
+  z-index: 2;
+}
+
+.gallery-grid.collage-view .photo-item:nth-child(7) {
+  width: 200px;
+  height: 160px;
+  bottom: 40%;
+  right: 10%;
+  transform: rotate(3deg);
+  z-index: 5;
+}
+
+.gallery-grid.collage-view .photo-item:nth-child(8) {
+  width: 240px;
+  height: 180px;
+  top: 60%;
+  left: 35%;
+  transform: rotate(-1deg);
+  z-index: 3;
+}
+
+/* Zusätzliche Positionen für mehr Fotos */
+.gallery-grid.collage-view .photo-item:nth-child(n+9) {
+  width: 160px;
+  height: 120px;
+  opacity: 0.8;
+  z-index: 1;
+}
+
+.gallery-grid.collage-view .photo-item:nth-child(9) {
+  top: 5%;
+  right: 5%;
+  transform: rotate(-2deg);
+}
+
+.gallery-grid.collage-view .photo-item:nth-child(10) {
+  bottom: 5%;
+  left: 50%;
+  transform: rotate(6deg);
+}
+
+/* Hover-Effekte für Collage */
+.gallery-grid.collage-view .photo-item:hover {
+  transform: scale(1.1) rotate(0deg) !important;
+  z-index: 100 !important;
+  box-shadow: var(--shadow-xl);
+  transition: all var(--transition-normal);
+}
+
+/* Collage Thumbnails */
+.gallery-grid.collage-view .photo-thumbnail {
+  width: 100%;
+  height: calc(100% - 60px);
+  object-fit: cover;
+  transition: all var(--transition-normal);
+}
+
+.gallery-grid.collage-view .photo-item:hover .photo-thumbnail {
+  filter: brightness(1.1) contrast(1.05);
+}
+
+/* Collage Info */
+.gallery-grid.collage-view .photo-info {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--bg-glass);
+  backdrop-filter: blur(10px);
+  padding: 8px 12px;
+  height: 60px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.gallery-grid.collage-view .photo-filename {
+  font-size: 11px;
+  font-weight: 600;
+  margin-bottom: 2px;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.gallery-grid.collage-view .photo-date {
+  font-size: 10px;
+  color: var(--text-secondary);
+}
+
+.gallery-grid.collage-view .photo-year {
+  display: none;
+}
+
+/* ===== LAZY LOADING PLACEHOLDER ===== */
+
+.photo-item.loading {
+  background: var(--bg-tertiary);
+  position: relative;
+  overflow: hidden;
+}
+
+.photo-item.loading::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.1),
+    transparent
+  );
+  animation: shimmer 1.5s infinite;
+}
+
+.dark-theme .photo-item.loading::before {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.05),
+    transparent
+  );
+}
+
+@keyframes shimmer {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+.photo-thumbnail.loading {
+  background: var(--bg-tertiary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  font-size: 24px;
+}
+
+/* ===== LAYOUT-WECHSEL ANIMATIONEN ===== */
+
+.gallery-grid {
+  transition: all var(--transition-slow);
+}
+
+.photo-item {
+  transition: all var(--transition-normal);
+}
+
+/* Fade-in Animation für neue Layout-Modi */
+.gallery-grid.layout-transition {
+  opacity: 0;
+  transform: scale(0.95);
+}
+
+.gallery-grid.layout-active {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* ===== RESPONSIVE ANPASSUNGEN FÜR NEUE LAYOUTS ===== */
+
+@media (max-width: 1024px) {
+  .gallery-grid.grid-view {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  
+  .gallery-grid.collage-view {
+    height: calc(100vh - 250px);
+  }
+  
+  .gallery-grid.collage-view .photo-item {
+    transform: scale(0.8) !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .gallery-grid.grid-view {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+  
+  .gallery-grid.collage-view {
+    height: calc(100vh - 300px);
+    padding: 10px;
+  }
+  
+  .gallery-grid.collage-view .photo-item {
+    transform: scale(0.6) !important;
+  }
+  
+  .gallery-grid.collage-view .photo-item:nth-child(n+6) {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .gallery-grid.grid-view {
+    grid-template-columns: 1fr 1fr;
+  }
+  
+  .gallery-grid.collage-view .photo-item:nth-child(n+4) {
+    display: none;
+  }
+}
+
+/* ===== PERFORMANCE OPTIMIERUNGEN ===== */
+
+.gallery-grid.collage-view .photo-item {
+  will-change: transform;
+  backface-visibility: hidden;
+}
+
+.photo-thumbnail {
+  will-change: transform, filter;
+  backface-visibility: hidden;
+}
+
+/* GPU-Beschleunigung für Animationen */
+.photo-item:hover {
+  will-change: transform;
+}
+
+/* ===== ACCESSIBILITY IMPROVEMENTS ===== */
+
+.photo-item:focus {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: 2px;
+}
+
+.photo-item:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* Reduzierte Bewegung für Nutzer mit motion sensitivity */
+@media (prefers-reduced-motion: reduce) {
+  .photo-item,
+  .photo-thumbnail,
+  .gallery-grid {
+    transition: none !important;
+    animation: none !important;
+  }
+  
+  .gallery-grid.collage-view .photo-item:hover {
+    transform: scale(1.05) !important;
+  }
+}
