@@ -656,7 +656,7 @@ function showNoPhotosState(day, month) {
 /**
  * Wechselt zwischen Dark und Light Theme
  */
-function toggleTheme() {
+async function toggleTheme() {
     const body = document.body;
     const isDark = body.classList.contains('dark-theme');
     
@@ -671,6 +671,9 @@ function toggleTheme() {
             lucide.createIcons();
         }
         
+        // Titlebar-Theme aktualisieren
+        await window.electronAPI.updateTitlebarTheme(false);
+        
         localStorage.setItem('theme', 'light');
         showToast('Light Theme aktiviert');
     } else {
@@ -684,6 +687,9 @@ function toggleTheme() {
             lucide.createIcons();
         }
         
+        // Titlebar-Theme aktualisieren
+        await window.electronAPI.updateTitlebarTheme(true);
+        
         localStorage.setItem('theme', 'dark');
         showToast('Dark Theme aktiviert');
     }
@@ -692,14 +698,15 @@ function toggleTheme() {
 /**
  * Lädt das gespeicherte Theme beim Start
  */
-function loadSavedTheme() {
+async function loadSavedTheme() {
     const savedTheme = localStorage.getItem('theme');
     const body = document.body;
+    const isDarkTheme = savedTheme === 'dark';
     
     // Alle Theme-Klassen entfernen
     body.classList.remove('light-theme', 'dark-theme');
     
-    if (savedTheme === 'dark') {
+    if (isDarkTheme) {
         body.classList.add('dark-theme');
         
         if (elements.themeIcon) {
@@ -711,6 +718,15 @@ function loadSavedTheme() {
         
         if (elements.themeIcon) {
             elements.themeIcon.setAttribute('data-lucide', 'sun');
+        }
+    }
+    
+    // Titlebar-Theme beim Start setzen
+    if (window.electronAPI && window.electronAPI.updateTitlebarTheme) {
+        try {
+            await window.electronAPI.updateTitlebarTheme(isDarkTheme);
+        } catch (error) {
+            console.error('Fehler beim Setzen des initialen Titlebar-Themes:', error);
         }
     }
     
