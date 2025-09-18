@@ -46,6 +46,13 @@ contextBridge.exposeInMainWorld('electronAPI', {
   },
 
   /**
+   * Aktualisiert die Titlebar-Farben basierend auf dem aktuellen Theme
+   * @param {boolean} isDarkTheme - true für Dark Theme, false für Light Theme
+   * @returns {Promise<boolean>} Erfolg der Aktualisierung
+   */
+  updateTitlebarTheme: (isDarkTheme) => ipcRenderer.invoke('update-titlebar-theme', isDarkTheme),
+
+  /**
    * Progress-Event-Listener für Performance-optimierte Foto-Verarbeitung
    * @param {function} callback - Callback-Funktion für Progress-Updates
    */

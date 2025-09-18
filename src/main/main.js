@@ -374,3 +374,25 @@ ipcMain.handle('window-close', () => {
 ipcMain.handle('window-is-maximized', () => {
   return mainWindow.isMaximized();
 });
+
+/**
+ * IPC-Handler für Theme-Wechsel - Aktualisiert die Titlebar-Farben
+ */
+ipcMain.handle('update-titlebar-theme', (event, isDarkTheme) => {
+  try {
+    if (mainWindow && process.platform === 'win32') {
+      // Aktualisiere die Titlebar-Overlay-Farben basierend auf dem Theme
+      mainWindow.setTitleBarOverlay({
+        color: isDarkTheme ? '#1e293b' : '#ffffff',
+        symbolColor: isDarkTheme ? '#ffffff' : '#333333',
+        height: 40
+      });
+      
+      console.log(`🎨 Titlebar-Theme aktualisiert: ${isDarkTheme ? 'Dark' : 'Light'}`);
+    }
+    return true;
+  } catch (error) {
+    console.error('Fehler beim Aktualisieren des Titlebar-Themes:', error);
+    return false;
+  }
+});
