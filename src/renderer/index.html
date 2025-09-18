@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Photo of the Day</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+</head>
+<body class="modern-app light-theme">
+    <!-- Custom Titlebar -->
+    <div class="titlebar" id="titlebar">
+        <div class="titlebar-drag-region">
+            <div class="titlebar-content">
+                <div class="app-icon-title">
+                    <i data-lucide="camera" class="app-icon"></i>
+                    <span class="app-title-text">Photo of the Day</span>
+                </div>
+                <div class="titlebar-controls">
+                    <button class="titlebar-button minimize-btn" id="minimizeBtn" title="Minimieren">
+                        <i data-lucide="minus"></i>
+                    </button>
+                    <button class="titlebar-button maximize-btn" id="maximizeBtn" title="Maximieren">
+                        <i data-lucide="square"></i>
+                    </button>
+                    <button class="titlebar-button close-btn" id="closeBtn" title="Schließen">
+                        <i data-lucide="x"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="app-content">
+        <!-- Header Bar -->
+        <header class="header-bar">
+            <div class="header-left">
+                <div class="current-date-display">
+                    <i data-lucide="calendar" class="date-icon"></i>
+                    <div class="date-text">
+                        <div class="current-date" id="currentDate"></div>
+                        <div class="photo-count-badge" id="photoCount">Keine Fotos geladen</div>
+                    </div>
+                </div>
+            </div>
+            <div class="header-right">
+                <button class="theme-toggle" id="themeToggle" title="Design wechseln">
+                    <i data-lucide="sun" class="theme-icon"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Layout -->
+        <div class="main-layout">
+            <!-- Sidebar -->
+            <aside class="sidebar-panel">
+                <div class="sidebar-content">
+                    <!-- Directory Selection -->
+                    <div class="control-section">
+                        <h3 class="section-title">
+                            <i data-lucide="folder" class="section-icon"></i>
+                            Verzeichnis
+                        </h3>
+                        <button class="btn btn-primary btn-full" id="selectDirectoryBtn">
+                            <i data-lucide="folder-open"></i>
+                            <span>Verzeichnis auswählen</span>
+                        </button>
+                        
+                        <div class="directory-info-card" id="directoryInfo" style="display: none;">
+                            <div class="info-label">Ausgewähltes Verzeichnis:</div>
+                            <div class="directory-path-display" id="directoryPath"></div>
+                        </div>
+                    </div>
+
+                    <!-- Date Filter -->
+                    <div class="control-section">
+                        <h3 class="section-title">
+                            <i data-lucide="calendar-days" class="section-icon"></i>
+                            Datum filtern
+                        </h3>
+                        <div class="date-selector-grid">
+                            <div class="input-field">
+                                <label class="input-label">Tag</label>
+                                <select id="daySelect" class="select-field">
+                                    <!-- Dynamisch gefüllt -->
+                                </select>
+                            </div>
+                            <div class="input-field">
+                                <label class="input-label">Monat</label>
+                                <select id="monthSelect" class="select-field">
+                                    <option value="1">Januar</option>
+                                    <option value="2">Februar</option>
+                                    <option value="3">März</option>
+                                    <option value="4">April</option>
+                                    <option value="5">Mai</option>
+                                    <option value="6">Juni</option>
+                                    <option value="7">Juli</option>
+                                    <option value="8">August</option>
+                                    <option value="9">September</option>
+                                    <option value="10">Oktober</option>
+                                    <option value="11">November</option>
+                                    <option value="12">Dezember</option>
+                                </select>
+                            </div>
+                        </div>
+                        <button class="btn btn-secondary btn-full" id="filterBtn" disabled>
+                            <i data-lucide="search"></i>
+                            <span>Fotos filtern</span>
+                        </button>
+                    </div>
+
+                    <!-- Statistics -->
+                    <div class="control-section" id="statsPanel" style="display: none;">
+                        <h3 class="section-title">
+                            <i data-lucide="bar-chart-3" class="section-icon"></i>
+                            Statistiken
+                        </h3>
+                        <div class="stats-grid">
+                            <div class="stat-card">
+                                <div class="stat-number" id="totalPhotos">0</div>
+                                <div class="stat-label">Gesamte Fotos</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-number" id="filteredPhotos">0</div>
+                                <div class="stat-label">Gefiltert</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-number" id="exifPhotos">0</div>
+                                <div class="stat-label">Mit EXIF</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Main Content Area -->
+            <main class="content-area">
+                <!-- Gallery Header -->
+                <div class="gallery-header" id="galleryHeaderSection" style="display: none;">
+                    <div class="gallery-title-section">
+                        <h2 class="gallery-title" id="galleryTitle">Fotos vom heutigen Tag</h2>
+                    </div>
+                    <div class="gallery-controls">
+                        <div class="view-mode-toggle">
+                            <button class="view-toggle-btn active" id="thumbnailViewBtn" title="Thumbnail-Ansicht">
+                                <i data-lucide="grid-3x3"></i>
+                            </button>
+                            <button class="view-toggle-btn" id="listViewBtn" title="Listen-Ansicht">
+                                <i data-lucide="list"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Content States -->
+                
+                <!-- Loading State -->
+                <div class="content-state loading-state" id="loadingIndicator" style="display: none;">
+                    <div class="loading-animation">
+                        <div class="loading-spinner"></div>
+                    </div>
+                    <h3 class="state-title">Fotos werden durchsucht...</h3>
+                    <p class="state-description loading-text">Bitte warten Sie, während die Fotos analysiert werden.</p>
+                </div>
+
+                <!-- Empty State -->
+                <div class="content-state empty-state" id="emptyState">
+                    <div class="state-icon">
+                        <i data-lucide="image" class="large-icon"></i>
+                    </div>
+                    <h3 class="state-title">Willkommen bei Photo of the Day</h3>
+                    <p class="state-description">
+                        Wählen Sie ein Verzeichnis aus, um Ihre Fotos vom heutigen Tag aus vergangenen Jahren anzuzeigen.
+                    </p>
+                    <button class="btn btn-primary" onclick="document.getElementById('selectDirectoryBtn').click()">
+                        <i data-lucide="folder-open"></i>
+                        <span>Verzeichnis auswählen</span>
+                    </button>
+                </div>
+
+                <!-- No Photos State -->
+                <div class="content-state no-photos-state" id="noPhotosState" style="display: none;">
+                    <div class="state-icon">
+                        <i data-lucide="camera-off" class="large-icon"></i>
+                    </div>
+                    <h3 class="state-title">Keine Fotos gefunden</h3>
+                    <p class="state-description" id="noPhotosMessage">
+                        Für das ausgewählte Datum wurden keine Fotos gefunden.
+                    </p>
+                    <button class="btn btn-secondary" id="selectDifferentDateBtn">
+                        <i data-lucide="calendar"></i>
+                        <span>Anderes Datum wählen</span>
+                    </button>
+                </div>
+
+                <!-- Photo Gallery -->
+                <div class="photo-gallery" id="photoGallery" style="display: none;">
+                    <div class="gallery-grid" id="galleryGrid">
+                        <!-- Photos werden hier dynamisch eingefügt -->
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Photo Modal -->
+    <div class="modal-overlay" id="imageModal" style="display: none;">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modalTitle">Foto-Details</h3>
+                <button class="modal-close-btn" onclick="closeModal()">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+            <div class="modal-content">
+                <div class="modal-image-section">
+                    <img id="modalImage" class="modal-image" src="" alt="Foto in Großansicht">
+                </div>
+                <div class="modal-details-section">
+                    <div class="detail-item">
+                        <div class="detail-label">
+                            <i data-lucide="file-text"></i>
+                            Dateiname
+                        </div>
+                        <div class="detail-value" id="modalFileName"></div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">
+                            <i data-lucide="calendar"></i>
+                            Aufnahmedatum
+                        </div>
+                        <div class="detail-value" id="modalDateTime"></div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">
+                            <i data-lucide="folder"></i>
+                            Dateipfad
+                        </div>
+                        <div class="detail-value file-path" id="modalFilePath"></div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">
+                            <i data-lucide="info"></i>
+                            EXIF-Status
+                        </div>
+                        <div class="detail-value" id="modalExifStatus"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Scripts -->
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+    </script>
+    <script src="renderer.js"></script>
+</body>
+</html>

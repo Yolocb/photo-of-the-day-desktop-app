@@ -1,0 +1,80 @@
+# ===== NODE.JS & NPM =====
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+
+# ===== ELECTRON BUILD OUTPUTS =====
+dist/
+build/
+out/
+release/
+
+# ===== CACHE & TEMPORARY FILES =====
+.cache/
+temp/
+tmp/
+*.tmp
+*.temp
+.DS_Store
+Thumbs.db
+*.log
+
+# ===== ELECTRON SPECIFIC =====
+# Electron userdata and cache
+electron-userdata/
+.electron/
+
+# ===== WINDOWS SPECIFIC =====
+desktop.ini
+$RECYCLE.BIN/
+
+# ===== MACOS SPECIFIC =====
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+
+# ===== LINUX SPECIFIC =====
+*~
+.directory
+
+# ===== IDE & EDITOR FILES =====
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ===== ENVIRONMENT & CONFIG =====
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# ===== PHOTO CACHE (App-specific) =====
+photo-of-the-day-cache.json
+
+# ===== SYSTEM FILES =====
+*.pid
+*.seed
+*.pid.lock
+.npm
+.eslintcache
+.nyc_output
+coverage/
+.coverage
+
+# ===== ARCHIVES =====
+*.tar.gz
+*.zip
+*.rar
+*.7z
+
+# ===== LARGE FILES =====
+photo-of-the-day-app.zip
+*.zip
+dist.zip
+build.zip
