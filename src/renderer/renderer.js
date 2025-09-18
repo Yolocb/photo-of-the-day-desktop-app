@@ -7,7 +7,8 @@
 let allPhotos = [];
 let currentPhotos = [];
 let selectedDirectory = null;
-let currentViewMode = 'thumbnail'; // 'thumbnail' or 'list'
+let currentViewMode = 'thumbnail'; // 'thumbnail', 'grid', 'collage', or 'list'
+let intersectionObserver = null; // Für Lazy Loading
 
 // DOM-Elemente
 const elements = {
@@ -24,6 +25,8 @@ const elements = {
     selectDirectoryBtn: document.getElementById('selectDirectoryBtn'),
     filterBtn: document.getElementById('filterBtn'),
     thumbnailViewBtn: document.getElementById('thumbnailViewBtn'),
+    gridViewBtn: document.getElementById('gridViewBtn'),
+    collageViewBtn: document.getElementById('collageViewBtn'),
     listViewBtn: document.getElementById('listViewBtn'),
     selectDifferentDateBtn: document.getElementById('selectDifferentDateBtn'),
     
@@ -130,8 +133,10 @@ function registerEventListeners() {
     // Fotos filtern
     elements.filterBtn.addEventListener('click', filterPhotos);
     
-    // View Mode ändern
+    // View Mode ändern - Neue Layout-Optionen
     elements.thumbnailViewBtn.addEventListener('click', () => setViewMode('thumbnail'));
+    elements.gridViewBtn.addEventListener('click', () => setViewMode('grid'));
+    elements.collageViewBtn.addEventListener('click', () => setViewMode('collage'));
     elements.listViewBtn.addEventListener('click', () => setViewMode('list'));
     
     // Anderes Datum auswählen
@@ -415,18 +420,25 @@ async function filterPhotosInternal() {
 }
 
 /**
- * Zeigt die gefilterten Fotos in der Galerie an
+ * Zeigt die gefilterten Fotos in der Galerie an mit Performance-Optimierungen
  */
 async function displayPhotos() {
     elements.galleryGrid.innerHTML = '';
     
-    for (const photo of currentPhotos) {
-        const photoElement = await createPhotoElement(photo);
+    // Performance-optimierte Anzeige mit Lazy Loading
+    for (let i = 0; i < currentPhotos.length; i++) {
+        const photo = currentPhotos[i];
+        const photoElement = await createPhotoElementEnhanced(photo, i);
         elements.galleryGrid.appendChild(photoElement);
     }
     
     // View Mode anwenden
     updateViewMode();
+    
+    // Lazy Loading initialisieren
+    initializeLazyLoading();
+    
+    console.log(`🖼️ ${currentPhotos.length} Fotos in ${currentViewMode}-Modus angezeigt`);
 }
 
 /**
@@ -739,15 +751,279 @@ async function loadSavedTheme() {
 }
 
 /**
- * Verbesserte View-Mode-Umschaltung mit CSS-Klassen
+ * Erweiterte View-Mode-Umschaltung für alle Layout-Optionen
+ * Unterstützt: thumbnail, grid, collage, list
  */
 function setViewMode(mode) {
-    currentViewMode = mode;
-    updateViewMode();
+    const validModes = ['thumbnail', 'grid', 'collage', 'list'];
+    if (!validModes.includes(mode)) {
+        console.warn(`Ungültiger View-Mode: ${mode}`);
+        return;
+    }
     
-    // Button-States mit CSS-Klassen aktualisieren
+    currentViewMode = mode;
+    
+    // Layout-Wechsel Animation
+    animateLayoutTransition(() => {
+        updateViewMode();
+        initializeLazyLoading();
+    });
+    
+    // Button-States für alle Modi aktualisieren
     elements.thumbnailViewBtn.classList.toggle('active', mode === 'thumbnail');
+    elements.gridViewBtn.classList.toggle('active', mode === 'grid');
+    elements.collageViewBtn.classList.toggle('active', mode === 'collage');
     elements.listViewBtn.classList.toggle('active', mode === 'list');
+    
+    // User Feedback
+    const modeNames = {
+        'thumbnail': 'Standard-Thumbnails',
+        'grid': 'Mehrspaltige Galerie',
+        'collage': 'Künstlerische Collage',
+        'list': 'Listen-Ansicht'
+    };
+    
+    showToast(`Layout geändert: ${modeNames[mode]}`);
+    
+    console.log(`📱 View-Mode gewechselt zu: ${mode}`);
+}
+
+/**
+ * Erweiterte updateViewMode Funktion für alle Layout-Modi
+ */
+function updateViewMode() {
+    const galleryGrid = elements.galleryGrid;
+    
+    // Alle View-Klassen entfernen
+    galleryGrid.classList.remove('list-view', 'grid-view', 'collage-view');
+    
+    // Entsprechende Klasse hinzufügen
+    switch (currentViewMode) {
+        case 'grid':
+            galleryGrid.classList.add('grid-view');
+            break;
+        case 'collage':
+            galleryGrid.classList.add('collage-view');
+            setupCollageLayout();
+            break;
+        case 'list':
+            galleryGrid.classList.add('list-view');
+            break;
+        case 'thumbnail':
+        default:
+            // Standard Thumbnail-View (keine spezielle Klasse)
+            break;
+    }
+    
+    // Photo-Item Klassen aktualisieren
+    const photoItems = galleryGrid.querySelectorAll('.photo-item');
+    photoItems.forEach(item => {
+        item.classList.remove('list-view');
+        if (currentViewMode === 'list') {
+            item.classList.add('list-view');
+        }
+    });
+}
+
+/**
+ * Initialisiert Lazy Loading für Performance-Optimierung
+ */
+function initializeLazyLoading() {
+    // Cleanup existing observer
+    if (intersectionObserver) {
+        intersectionObserver.disconnect();
+    }
+    
+    // Erstelle neuen Intersection Observer für Lazy Loading
+    intersectionObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const img = entry.target;
+                
+                // Lade Bild nur wenn noch nicht geladen
+                if (img.classList.contains('loading')) {
+                    loadImageLazily(img);
+                    intersectionObserver.unobserve(img);
+                }
+            }
+        });
+    }, {
+        rootMargin: '50px' // Lade Bilder 50px bevor sie sichtbar werden
+    });
+    
+    // Überwache alle Thumbnails
+    const thumbnails = elements.galleryGrid.querySelectorAll('.photo-thumbnail');
+    thumbnails.forEach(thumbnail => {
+        if (thumbnail.src.startsWith('data:') || !thumbnail.complete) {
+            thumbnail.classList.add('loading');
+            intersectionObserver.observe(thumbnail);
+        }
+    });
+}
+
+/**
+ * Lädt ein Bild lazy
+ */
+async function loadImageLazily(img) {
+    try {
+        img.classList.remove('loading');
+        
+        // Smooth fade-in Animation
+        img.style.opacity = '0';
+        img.style.transition = 'opacity 0.3s ease-in-out';
+        
+        img.onload = () => {
+            img.style.opacity = '1';
+        };
+        
+        // Trigger load falls bereits cached
+        if (img.complete) {
+            img.style.opacity = '1';
+        }
+        
+    } catch (error) {
+        console.error('Fehler beim Lazy Loading:', error);
+        img.classList.remove('loading');
+    }
+}
+
+/**
+ * Setup für Collage-Layout mit dynamischen Positionen
+ */
+function setupCollageLayout() {
+    const photoItems = elements.galleryGrid.querySelectorAll('.photo-item');
+    
+    // Verhindere Überlappung bei vielen Bildern
+    if (photoItems.length > 10) {
+        // Für mehr als 10 Bilder - kompakteres Layout
+        photoItems.forEach((item, index) => {
+            if (index >= 10) {
+                item.style.display = 'none';
+            }
+        });
+        
+        showToast(`Collage-Ansicht zeigt die ersten 10 von ${photoItems.length} Fotos`, 'info');
+    }
+    
+    // Dynamic Positioning für bessere Verteilung
+    if (photoItems.length <= 5) {
+        adjustCollageForFewItems(photoItems);
+    }
+}
+
+/**
+ * Anpassung der Collage für wenige Bilder
+ */
+function adjustCollageForFewItems(items) {
+    const positions = [
+        { width: '320px', height: '240px', top: '20%', left: '20%', rotate: '-2deg', zIndex: 5 },
+        { width: '280px', height: '350px', top: '25%', right: '20%', rotate: '3deg', zIndex: 4 },
+        { width: '240px', height: '200px', bottom: '30%', left: '15%', rotate: '4deg', zIndex: 6 },
+        { width: '300px', height: '220px', top: '50%', left: '40%', rotate: '-1deg', zIndex: 3 },
+        { width: '260px', height: '320px', bottom: '15%', right: '25%', rotate: '2deg', zIndex: 4 }
+    ];
+    
+    items.forEach((item, index) => {
+        if (positions[index]) {
+            const pos = positions[index];
+            item.style.width = pos.width;
+            item.style.height = pos.height;
+            item.style.top = pos.top || 'auto';
+            item.style.bottom = pos.bottom || 'auto';
+            item.style.left = pos.left || 'auto';
+            item.style.right = pos.right || 'auto';
+            item.style.transform = `rotate(${pos.rotate})`;
+            item.style.zIndex = pos.zIndex;
+        }
+    });
+}
+
+/**
+ * Animiert Layout-Übergänge
+ */
+function animateLayoutTransition(callback) {
+    const galleryGrid = elements.galleryGrid;
+    
+    // Fade-out Animation
+    galleryGrid.classList.add('layout-transition');
+    
+    setTimeout(() => {
+        // Layout ändern
+        callback();
+        
+        // Fade-in Animation
+        galleryGrid.classList.remove('layout-transition');
+        galleryGrid.classList.add('layout-active');
+        
+        setTimeout(() => {
+            galleryGrid.classList.remove('layout-active');
+        }, 300);
+        
+    }, 150);
+}
+
+/**
+ * Erweiterte createPhotoElement Funktion mit Lazy Loading Support
+ */
+async function createPhotoElementEnhanced(photo, index = 0) {
+    const photoItem = document.createElement('div');
+    photoItem.className = 'photo-item';
+    photoItem.addEventListener('click', () => openPhotoModal(photo));
+    
+    // Lazy Loading für bessere Performance
+    const shouldLazyLoad = index > 8; // Erste 8 Bilder sofort laden
+    
+    try {
+        const photoDate = new Date(photo.dateTime);
+        const dateString = photoDate.toLocaleDateString('de-DE');
+        const yearString = photoDate.getFullYear().toString();
+        
+        let imgSrc = '';
+        let imgClass = 'photo-thumbnail';
+        
+        if (shouldLazyLoad) {
+            // Placeholder für Lazy Loading
+            imgSrc = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjE1MCIgdmlld0JveD0iMCAwIDIwMCAxNTAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMTUwIiBmaWxsPSIjRjdGQUZDIi8+CjxwYXRoIGQ9Ik0xMDAgNzVMMTI1IDEwMEg3NUwxMDAgNzVaIiBmaWxsPSIjQ0JENUUwIi8+CjwvY3ZnPg==';
+            imgClass += ' loading';
+            photoItem.dataset.imagePath = photo.filePath;
+        } else {
+            // Sofort laden
+            imgSrc = await window.electronAPI.getFileUrl(photo.filePath);
+        }
+        
+        photoItem.innerHTML = `
+            <img class="${imgClass}" 
+                 src="${imgSrc}" 
+                 alt="${photo.fileName}"
+                 loading="lazy"
+                 onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjE1MCIgdmlld0JveD0iMCAwIDIwMCAxNTAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMTUwIiBmaWxsPSIjRjdGQUZDIi8+CjxwYXRoIGQ9Ik0xMDAgNzVMMTI1IDEwMEg3NUwxMDAgNzVaIiBmaWxsPSIjQ0JENUUwIi8+PC9zdmc+'" />
+            <div class="photo-info">
+                <div class="photo-filename">${photo.fileName}</div>
+                <div class="photo-date">${dateString}</div>
+                <div class="photo-year">
+                    ${yearString}
+                    <span class="exif-indicator ${photo.hasExifDate ? 'has-exif' : 'no-exif'}" 
+                          title="${photo.hasExifDate ? 'EXIF-Datum verfügbar' : 'Kein EXIF-Datum, Datei-Datum verwendet'}"></span>
+                </div>
+            </div>
+        `;
+        
+    } catch (error) {
+        console.error('Fehler beim Erstellen des Foto-Elements:', error);
+        
+        // Fallback ohne Bild
+        photoItem.innerHTML = `
+            <div class="photo-thumbnail loading" style="display: flex; align-items: center; justify-content: center; background: var(--bg-tertiary); color: var(--text-muted);">
+                📷
+            </div>
+            <div class="photo-info">
+                <div class="photo-filename">${photo.fileName}</div>
+                <div class="photo-date">Fehler beim Laden</div>
+            </div>
+        `;
+    }
+    
+    return photoItem;
 }
 
 /**

@@ -7,7 +7,8 @@ Eine lokale Desktop-Anwendung für Windows, die Fotos basierend auf dem Kalender
 - **Kalendertag-basierte Filterung**: Zeigt Fotos vom gleichen Tag/Monat aus verschiedenen Jahren an
 - **Rekursive Verzeichnissuche**: Durchsucht ausgewählte Verzeichnisse und Unterverzeichnisse nach Bildern
 - **EXIF-Datenextraktion**: Liest Aufnahmedaten aus Foto-Metadaten (mit Fallback auf Datei-Änderungsdatum)
-- **Moderne Benutzeroberfläche**: Glassmorphism-Design mit Thumbnail- und Listen-Ansicht
+- **Erweiterte Layout-Optionen**: 4 verschiedene Ansichtsmodi (Thumbnails, Grid, Collage, Liste)
+- **Moderne Benutzeroberfläche**: Glassmorphism-Design mit responsivem Layout
 - **Custom Titlebar**: Native Window-Controls (Minimize, Maximize, Close) für professionelles Look & Feel
 - **Dark/Light Theme**: Wechselbares Theme mit automatischer Persistierung
 - **Micro-Interaktionen**: Smooth Animationen und moderne UI-Transitions
@@ -49,7 +50,11 @@ npm run dist
 1. **Verzeichnis auswählen**: Klicken Sie auf "📁 Verzeichnis auswählen" und wählen Sie einen Ordner mit Ihren Fotos
 2. **Automatische Analyse**: Die App durchsucht rekursiv alle Unterordner und extrahiert Metadaten
 3. **Datum filtern**: Wählen Sie Tag und Monat aus den Dropdown-Menüs oder verwenden Sie das heutige Datum
-4. **Fotos durchstöbern**: Betrachten Sie Thumbnails oder wechseln Sie zur Listen-Ansicht
+4. **Fotos durchstöbern**: Wählen Sie zwischen 4 Layout-Modi:
+   - **Thumbnails**: Klassische Kachel-Ansicht mit Foto-Informationen
+   - **Grid**: Mehrspaltige, responsive Galerie mit Hover-Effekten
+   - **Collage**: Künstlerische Anordnung mit rotierenden Foto-Karten
+   - **Liste**: Kompakte Zeilen-Ansicht mit Mini-Thumbnails
 5. **Details anzeigen**: Klicken Sie auf ein Foto für Großansicht und Metadaten
 
 ## 🏗️ Projektstruktur
@@ -111,10 +116,13 @@ Die App verwendet die `exifr`-Bibliothek zur Extraktion von Metadaten:
 ## 🎨 Design-Features
 
 - **Glassmorphism-Oberfläche**: Moderne, transparente Elemente mit Blur-Effekten
-- **Responsive Layout**: Anpassung an verschiedene Fenstergrößen
+- **4 einzigartige Layout-Modi**: Von klassischen Thumbnails bis zur künstlerischen Collage
+- **Lazy Loading**: Performance-optimierte Bilddarstellung für große Sammlungen
+- **GPU-beschleunigte Animationen**: Smooth Transitions und Hover-Effekte
+- **Responsive Design**: Adaptive Layouts für verschiedene Fenstergrößen
+- **Accessibility**: Reduced-Motion-Support für bessere Barrierefreiheit
 - **Dark/Light Indicators**: Visuelle EXIF-Status-Anzeige
-- **Toast-Benachrichtigungen**: Nutzerfreundliche Statusmeldungen
-- **Lazy Loading**: Effiziente Bild-Darstellung
+- **Toast-Benachrichtigungen**: Elegantes Feedback-System mit Animations
 
 ## 🛠️ Entwicklung
 
